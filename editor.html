@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <script src="core/PokeCodeInterpreter.js"></script>
+        <script>
+            PokeCodeInterpreter.init()
+        </script>
+    </head>
+
+    <body>
+        <button id="run-code" onclick="runCode()">run</button><br>
+        <textarea id="source-code" placeholder="Enter here your source code">A WILD test APPEARED ITS NAME IS Hello World
+ANNOYING DIALOGUE test</textarea>
+       <div id="console" disabled></div>
+    </body>
+
+    <script>
+        PokeCodeInterpreter.addConsole('console');
+        runCode = _ => {
+            let codeArray = document.getElementById('source-code').value.split("\n");
+            PokeCodeInterpreter.runCode(codeArray);
+        }
+    </script>
+
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+        textarea, div {
+            width: 49%;
+            height: 500px;
+        }
+        textarea::selection {
+            background: lightblue;
+            color: black;
+        }
+        #console {
+            background-color: black;
+            color: white;
+            font-family: 'Consolas';
+            position: absolute;
+            right: 0px;
+            top: 21px;
+        }
+        ::selection {
+            background: white;
+            color: black;
+        }
+    </style>
+
+</html>
