@@ -9,17 +9,35 @@
     </head>
 
     <body>
-        <button id="run-code" onclick="runCode()">run</button><br>
-        <textarea id="source-code" placeholder="Enter here your source code">A WILD test APPEARED ITS NAME IS Hello World
-ANNOYING DIALOGUE test</textarea>
+        <button onclick="runCode()">run</button>
+        <button onclick="clearConsole()">clear console</button>
+        <br>
+        <textarea id="source-code" placeholder="Enter here your source code">
+A WILD test APPEARED ITS NAME IS Hello World
+ANNOYING DIALOGUE test
+
+CHANGE NICK OF test TO testhi
+ANNOYING DIALOGUE test
+
+CHANGE NICK OF test TO lol rofl XD
+ANNOYING DIALOGUE test
+        </textarea>
        <div id="console" disabled></div>
     </body>
 
     <script>
         PokeCodeInterpreter.addConsole('console');
+        window.onkeydown = ev => {
+            if (ev.ctrlKey && ev.keyCode == 13) {
+                runCode();
+            }
+        }
         runCode = _ => {
             let codeArray = document.getElementById('source-code').value.split("\n");
             PokeCodeInterpreter.runCode(codeArray);
+        }
+        clearConsole = _ => {
+            PokeCodeInterpreter.clearConsole();
         }
     </script>
 
@@ -37,12 +55,15 @@ ANNOYING DIALOGUE test</textarea>
             color: black;
         }
         #console {
+            padding:5px;
             background-color: black;
             color: white;
             font-family: 'Consolas';
             position: absolute;
             right: 0px;
             top: 21px;
+            overflow: scroll;
+            height: 90%;
         }
         ::selection {
             background: white;
