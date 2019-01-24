@@ -10,10 +10,14 @@ const PokeCodeInterpreter = {
 
     runCode: (_code) => {   
         if (Array.isArray(_code)) {
-            PokeCodeInterpreter.clearConsole();
-            _code.forEach(st => {
-                PokeCodeInterpreter.interpretStatement(st);
-            });
+            try {
+                PokeCodeInterpreter.clearConsole();
+                _code.forEach(st => {
+                    PokeCodeInterpreter.interpretStatement(st);
+                });
+            } catch (er) {
+                console.error(er);
+            }
         } else {
             PokeCodeInterpreter.writeErrorToConsole(`Illegal code format!`);
         }
@@ -80,8 +84,9 @@ const PokeCodeInterpreter = {
     },
 
     writeErrorToConsole: (_string) => {
-        let string = `<span style="color:red">${_string}</span>`;
+        let string = `<SPAN style="color:red">${_string}</SPAN>`;
         PokeCodeInterpreter.writeStringToConsole(string);
+        throw new Error("An error occured, see PokeCode console");
     },
 
     clearConsole: _ => {
