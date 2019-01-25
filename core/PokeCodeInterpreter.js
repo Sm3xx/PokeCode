@@ -29,7 +29,8 @@ const PokeCodeInterpreter = {
 
     prepareStatement: (_statement) => {
         let statement = _statement;
-        statement = statement.replace(/\s/g, "");
+      //  statement = statement.replace(/\s/g, "");
+        statement = statement.trim();
         return statement;
     },
 
@@ -58,6 +59,7 @@ const PokeCodeInterpreter = {
         var value;
         if (_statement.match(/ITS\s*NAME\s*IS/i)) {
             value = _statement.split(/ITS\s*NAME\s*IS/i)[1];
+            value = PokeCodeInterpreter.interpreteData(value);
         }
         // call internal core function
         PokeCodeInterpreter.createVariable(name, value);
@@ -65,9 +67,10 @@ const PokeCodeInterpreter = {
 
     interpreteConsoleWriteStatement: (_statement) => {
         // get message value from statement
-        let variable = _statement.split(/ANNOYING\s*DIALOGUE/i)[1].replace(/\s/g, "");
+        let variable = _statement.split(/ANNOYING\s*DIALOGUE/i)[1].trim();
+        variable = PokeCodeInterpreter.interpreteData(variable);
         // call internal core function
-        PokeCodeInterpreter.writeStringToConsole(PokeCodeInterpreter.getVariableValue(variable));
+        PokeCodeInterpreter.writeStringToConsole(variable);
     },
 
     interpreteChangeValueStatement: (_statement) => {
@@ -78,8 +81,26 @@ const PokeCodeInterpreter = {
         // get value val from statement
         let value = _statement.split(/TO/i)[1];
         value = value.trim();
+        value = PokeCodeInterpreter.interpreteData(value);
         // call internal core function
         PokeCodeInterpreter.setVariableValue(name, value);
+    },
+
+    interpreteData: (_dataString) => {
+        var returningValue = '';
+
+        if (_dataString.match(/^[0-9]/i)) {
+            // data is numeric
+            returningValue = _dataString;
+        } else if (_dataString.match(/["'].*["']/i)) {
+            // data is string
+            returningValue = _dataString.replace(/["']/ig, "");
+        } else {
+            // data is a var
+            returningValue = PokeCodeInterpreter.getVariableValue(_dataString);
+        }
+
+        return returningValue;
     },
 
     addConsole: (_htmlId) => {
