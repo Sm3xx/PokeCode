@@ -53,7 +53,28 @@ const PokeCodeInterpreter = {
         // wait function
         } else if (_statement.match(/WAIT\s*/i)) {
             PokeCodeInterpreter.interpreteWaitFunction(_statement);
+        // get random number
+        } else if (_statement.match(/RANDOM\s*/i)) {
+            PokeCodeInterpreter.interpreteRandomFunction(_statement);
         }
+    },
+
+    interpreteRandomFunction: (_statement) => {
+        if (_statement.match(/BETWEEN.*AND.*/i)) {
+            let min = PokeCodeInterpreter.interpreteData(_statement.split(/BETWEEN\s*/i)[1].split(/AND\s*/i)[0].trim());
+            let max = PokeCodeInterpreter.interpreteData(_statement.split(/BETWEEN\s*/i)[1].split(/AND\s*/i)[1].split(/INTO\s*/i)[0].trim());
+            let target = _statement.split(/INTO/i)[1].trim();
+            PokeCodeInterpreter.setVariableValue(target, PokeCodeInterpreter.internalRandomGenerator(min, max));
+        } else {
+            let target = _statement.split(/INTO/i)[1].trim();
+            PokeCodeInterpreter.setVariableValue(target, PokeCodeInterpreter.internalRandomGenerator(0, 100000));
+        }
+    },
+
+    internalRandomGenerator: (min, max) => {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
     interpreteWaitFunction: (_statement) => {
