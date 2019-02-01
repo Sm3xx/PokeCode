@@ -47,7 +47,34 @@ const PokeCodeInterpreter = {
         // clear console
         } else if (_statement.match(/RAPE\s*[AB]/i)) {
             PokeCodeInterpreter.clearConsole();
+        // convert functions
+        } else if (_statement.match(/CONVERT\s*/i)) {
+            PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
         }
+    },
+
+    interpreteConvertFunctionType: (_statement) => {
+        if (_statement.match(/TO\s*BINARY/i)) {
+            PokeCodeInterpreter.interpreteConvertToBinary(_statement);
+        }
+    },
+
+    interpreteConvertToBinary: (_statement) => {
+        let val = _statement.split(/CONVERT/i)[1].split(/TO\s*BINARY/i)[0].trim();
+        let binaryVal = PokeCodeInterpreter.internalConvertToBinary(PokeCodeInterpreter.getVariableValue(val));
+        PokeCodeInterpreter.setVariableValue(val, binaryVal);
+    },
+
+    internalConvertToBinary: (input) => {
+        output = "";
+        if (typeof input != "number") {
+            for (var i = 0; i < input.length; i++) {
+                output += input[i].charCodeAt(0).toString(2) + " ";
+            }
+        } else {
+            output = input.toString(2);
+        }
+        return output;
     },
 
     interpretDataDeclerationStatement: (_statement) => {
@@ -58,7 +85,7 @@ const PokeCodeInterpreter = {
         // get value val from data decleration statement
         var value;
         if (_statement.match(/ITS\s*NAME\s*IS/i)) {
-            value = _statement.split(/ITS\s*NAME\s*IS/i)[1];
+            value = _statement.split(/ITS\s*NAME\s*IS/i)[1].trim();
             value = PokeCodeInterpreter.interpreteData(value);
         }
         // call internal core function
@@ -91,7 +118,7 @@ const PokeCodeInterpreter = {
 
         if (_dataString.match(/^[0-9]/i)) {
             // data is numeric
-            returningValue = _dataString;
+            returningValue = parseInt(_dataString, 10);
         } else if (_dataString.match(/["'].*["']/i)) {
             // data is string
             returningValue = _dataString.replace(/["']/ig, "");
