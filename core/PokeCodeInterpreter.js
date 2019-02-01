@@ -50,6 +50,31 @@ const PokeCodeInterpreter = {
         // convert functions
         } else if (_statement.match(/CONVERT\s*/i)) {
             PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
+        // wait function
+        } else if (_statement.match(/WAIT\s*/i)) {
+            PokeCodeInterpreter.interpreteWaitFunction(_statement);
+        }
+    },
+
+    interpreteWaitFunction: (_statement) => {
+        let waitTime = PokeCodeInterpreter.interpreteData(_statement.split(/WAIT\s*/i)[1].trim());
+        if (typeof waitTime == 'number') {
+            PokeCodeInterpreter.sleep(waitTime);
+        } else {
+            if (waitTime.match(/^[0-9]/i)) {
+                PokeCodeInterpreter.sleep(parseInt(waitTime, 10));
+            } else {
+                PokeCodeInterpreter.writeErrorToConsole(`Wait function expects a number as parameter (${waitTime} is not a number) `);
+            }
+        }
+    },
+
+    sleep: (milliseconds) => {
+        var start = new Date().getTime();
+        for (var i = 0; i < 1e7; i++) {
+            if ((new Date().getTime() - start) > milliseconds){
+                break;
+            }
         }
     },
 
@@ -177,6 +202,11 @@ const PokeCodeInterpreter = {
             this.PokeConsole.innerHTML += (_string + '<BR>');
             PokeCodeInterpreter.scrollConsoleToBottom();
         }
+
+    },
+
+    rerenderConsole: () => {
+
     },
 
     writeErrorToConsole: (_string) => {
