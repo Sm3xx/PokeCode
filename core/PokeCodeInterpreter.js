@@ -14,7 +14,6 @@ const PokeCodeInterpreter = {
         if (Array.isArray(_code)) {
             try {
                 PokeCodeInterpreter.activeLine = 0;
-                PokeCodeInterpreter.clearConsole();
                 _code.forEach(st => {
                     PokeCodeInterpreter.activeLine++;
                     PokeCodeInterpreter.interpretStatement(st);
@@ -35,28 +34,68 @@ const PokeCodeInterpreter = {
     },
 
     interpretStatement: (_statement) => {
-        // Data decleration
-        if (_statement.match(/A\s*WILD.*?APPEARED/i)) {
-            PokeCodeInterpreter.interpretDataDeclerationStatement(_statement);
-        // write to console statement
-        } else if (_statement.match(/ANNOYING\s*DIALOGUE/i)) {
-            PokeCodeInterpreter.interpreteConsoleWriteStatement(_statement);
-        // change variable value
-        } else if (_statement.match(/CHANGE\s*NICK\s*OF/i)) {
-            PokeCodeInterpreter.interpreteChangeValueStatement(_statement);
-        // clear console
-        } else if (_statement.match(/RAPE\s*[AB]/i)) {
-            PokeCodeInterpreter.clearConsole();
-        // convert functions
-        } else if (_statement.match(/CONVERT\s*/i)) {
-            PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
-        // wait function
-        } else if (_statement.match(/WAIT\s*/i)) {
-            PokeCodeInterpreter.interpreteWaitFunction(_statement);
-        // get random number
-        } else if (_statement.match(/RANDOM\s*/i)) {
-            PokeCodeInterpreter.interpreteRandomFunction(_statement);
+        if (!_statement.match(/^\/\/.*/i)) {
+            // Data decleration
+            if (_statement.match(/A\s*WILD.*?APPEARED/i)) {
+                PokeCodeInterpreter.interpretDataDeclerationStatement(_statement);
+            // write to console statement
+            } else if (_statement.match(/ANNOYING\s*DIALOGUE/i)) {
+                PokeCodeInterpreter.interpreteConsoleWriteStatement(_statement);
+            // change variable value
+            } else if (_statement.match(/CHANGE\s*NICK\s*OF/i)) {
+                PokeCodeInterpreter.interpreteChangeValueStatement(_statement);
+            // clear console
+            } else if (_statement.match(/RAPE\s*[AB]/i)) {
+                PokeCodeInterpreter.clearConsole();
+            // sum function
+            } else if (_statement.match(/SUM\s*/i)) {
+                PokeCodeInterpreter.interpreteSumFunction(_statement);
+            // convert functions
+            } else if (_statement.match(/CONVERT\s*/i)) {
+                PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
+            // wait function
+            } else if (_statement.match(/WAIT\s*/i)) {
+                PokeCodeInterpreter.interpreteWaitFunction(_statement);
+            // get random number
+            } else if (_statement.match(/RANDOM\s*/i)) {
+                PokeCodeInterpreter.interpreteRandomFunction(_statement);
+            }
         }
+    },
+
+    interpreteSumFunction: (_statement) => {
+        // read summable params
+        var sumParas = _statement.split(/SUM/i)[1].split(/INTO/i)[0].split(/,/i);
+        var result;
+        var containsString = PokeCodeInterpreter.checkArrayContainsString(sumParas);
+        // sum the parameters (string concatenate)
+        sumParas.forEach(el=>{
+            if (result == undefined) {
+                let val = PokeCodeInterpreter.interpreteData(el.trim());
+                if (containsString) {
+                    val = val.toString();
+                }
+                result = val;
+            } else {
+                let it = el.trim();
+                result += PokeCodeInterpreter.interpreteData(it);
+            }
+        });
+        // read target variable
+        var target = _statement.split(/INTO/i)[1].trim();
+        // set target val
+        PokeCodeInterpreter.setVariableValue(target, result);
+    },
+
+    checkArrayContainsString: (_array) => {
+        // checks if the array contains a string value
+        var r = false;
+        _array.forEach(el=>{
+            if (typeof PokeCodeInterpreter.interpreteData(el.trim()) == 'string') {
+                r = true;
+            }
+        });
+        return r;
     },
 
     interpreteRandomFunction: (_statement) => {
