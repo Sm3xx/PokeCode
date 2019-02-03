@@ -293,3 +293,16 @@ const PokeCodeInterpreter = {
     }
 
 }
+
+// following classes has to be programmed
+const PokeCodePopup = {
+    create: (message) => {
+
+    }
+}
+
+const PokeCodePopupWithInput = {
+    create: (message, callback) => {
+
+    }
+}

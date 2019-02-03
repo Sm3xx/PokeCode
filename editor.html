@@ -32,7 +32,8 @@ SUM "Your random binary number is ", test INTO test
 
 ANNOYING DIALOGUE test
         </textarea>
-       <div id="console" disabled>PokeCode Editor v. 0.0.1</div>
+       <div id="console" disabled>
+       </div>
     </body>
 
     <script>
@@ -42,6 +43,7 @@ ANNOYING DIALOGUE test
                 runCode();
             }
         }
+
         runCode = _ => {
             let codeArray = document.getElementById('source-code').value.split("\n");
             PokeCodeInterpreter.runCode(codeArray);
@@ -79,6 +81,17 @@ ANNOYING DIALOGUE test
             background: white;
             color: black;
         }
+
+
+        input {
+            background-color: rgba(0,0,0,0);
+            border-color: rgba(0,0,0,0);
+            color: white;
+            width: 100%;
+            font-family: 'Consolas';
+            height: 100%;
+        }
+
     </style>
 
 </html>

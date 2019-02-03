@@ -28,7 +28,7 @@ function loadDataPath (dataPath) {
     if (dataPath ===  null) {
         PokeCodeInterpreter.writeErrorToConsole(`No file is selected`);
     } else {
-    
+        
         fs.readFile(dataPath, 'utf-8', (err, data) => {
             if (err) {
                 PokeCodeInterpreter.writeErrorToConsole(`File ${dataPath} could not be loaded`);
