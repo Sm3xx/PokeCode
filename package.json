@@ -1,0 +1,16 @@
+{
+  "name": "PokeCodeInterpreter",
+  "version": "1.0.0",
+  "description": "Electron based PokeCode interpreter",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/Sm3xx/PokeCode",
+  "devDependencies": {
+    "electron": "^4.0.3"
+  },
+  "dependencies": {
+    "electron-packager": "^13.0.1"
+  }
+}

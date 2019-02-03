@@ -10,10 +10,15 @@ const PokeCodeInterpreter = {
         // do some initiation stuff here
     },
 
+    reset: () => {
+        PokeCodeInterpreter.activeLine = 0;
+        PokeCodeInterpreter.Variables = {};
+    },
+
     runCode: (_code) => {   
         if (Array.isArray(_code)) {
             try {
-                PokeCodeInterpreter.activeLine = 0;
+                PokeCodeInterpreter.reset();
                 _code.forEach(st => {
                     PokeCodeInterpreter.activeLine++;
                     PokeCodeInterpreter.interpretStatement(st);
