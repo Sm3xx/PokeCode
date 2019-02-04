@@ -264,6 +264,10 @@ const PokeCodeInterpreter = {
     interpreteConvertFunctionType: (_statement) => {
         if (_statement.match(/TO\s*BINARY/i)) {
             PokeCodeInterpreter.interpreteConvertToBinary(_statement);
+        } else if (_statement.match(/TO\s*NUMBER/i)) {
+            PokeCodeInterpreter.interpreteConvertToNumber(_statement);
+        } else if (_statement.match(/TO\s*STRING/i)) {
+            PokeCodeInterpreter.interpreteConvertToString(_statement);
         }
     },
 
@@ -271,6 +275,18 @@ const PokeCodeInterpreter = {
         let val = _statement.split(/CONVERT/i)[1].split(/TO\s*BINARY/i)[0].trim();
         let binaryVal = PokeCodeInterpreter.internalConvertToBinary(PokeCodeInterpreter.getVariableValue(val));
         PokeCodeInterpreter.setVariableValue(val, binaryVal);
+    },
+
+    interpreteConvertToNumber: (_statement) => {
+        let val = _statement.split(/CONVERT/i)[1].split(/TO\s*NUMBER/i)[0].trim();
+        let numberVal = parseInt(PokeCodeInterpreter.getVariableValue(val));
+        PokeCodeInterpreter.setVariableValue(val, numberVal);
+    },
+
+    interpreteConvertToString: (_statement) => {
+        let val = _statement.split(/CONVERT/i)[1].split(/TO\s*STRING/i)[0].trim();
+        let stringVal = PokeCodeInterpreter.getVariableValue(val).toString();
+        PokeCodeInterpreter.setVariableValue(val, stringVal);
     },
 
     internalConvertToBinary: (input) => {
