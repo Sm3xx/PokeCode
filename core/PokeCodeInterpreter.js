@@ -1,3 +1,6 @@
+const _THEN = 'THEN';
+const _ELSE = 'ELSE';
+
 const PokeCodeInterpreter = {
 
     PokeConsole: null,
@@ -7,6 +10,12 @@ const PokeCodeInterpreter = {
     GotoPoints: {},
 
     activeLine: 0,
+
+    ifOpen: false,
+
+    lastIfResult: false,
+
+    lastIfKeyword: '',
 
     init: () => {
         // do some initiation stuff here
@@ -49,42 +58,122 @@ const PokeCodeInterpreter = {
 
     prepareStatement: (_statement) => {
         let statement = _statement;
-      //  statement = statement.replace(/\s/g, "");
         statement = statement.trim();
         return statement;
     },
 
     interpretStatement: (_statement) => {
-        if (!_statement.match(/^\/\/.*/i)) {
-            // Data decleration
-            if (_statement.match(/A\s*WILD.*?APPEARED/i)) {
-                PokeCodeInterpreter.interpretDataDeclerationStatement(_statement);
-            // write to console statement
-            } else if (_statement.match(/ANNOYING\s*DIALOGUE/i)) {
-                PokeCodeInterpreter.interpreteConsoleWriteStatement(_statement);
-            // change variable value
-            } else if (_statement.match(/CHANGE\s*NICK\s*OF/i)) {
-                PokeCodeInterpreter.interpreteChangeValueStatement(_statement);
-            // clear console
-            } else if (_statement.match(/RAPE\s*[AB]/i)) {
-                PokeCodeInterpreter.clearConsole();
-            // sum function
-            } else if (_statement.match(/SUM\s*/i)) {
-                PokeCodeInterpreter.interpreteSumFunction(_statement);
-            // convert functions
-            } else if (_statement.match(/CONVERT\s*/i)) {
-                PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
-            // wait function
-            } else if (_statement.match(/WAIT\s*/i)) {
-                PokeCodeInterpreter.interpreteWaitFunction(_statement);
-            // get random number
-            } else if (_statement.match(/RANDOM\s*/i)) {
-                PokeCodeInterpreter.interpreteRandomFunction(_statement);
-            // goto statement
-            } else if (_statement.match(/FLY\s*TO/i)) {
-                PokeCodeInterpreter.interpreteFlyStatement(_statement);
+
+        // then keyword
+        if (_statement.match(/THEN/i)) {
+            PokeCodeInterpreter.interpreteThen();
+
+        // else keyword
+        } else if (_statement.match(/ELSE/i)) {
+            PokeCodeInterpreter.interpreteElse();
+        } else {
+            if ((!PokeCodeInterpreter.ifOpen) 
+                || (PokeCodeInterpreter.ifOpen && PokeCodeInterpreter.lastIfResult && PokeCodeInterpreter.lastIfKeyword == _THEN) 
+                || (PokeCodeInterpreter.ifOpen && !PokeCodeInterpreter.lastIfResult && PokeCodeInterpreter.lastIfKeyword == _ELSE)) {
+
+                if (!_statement.match(/^\/\/.*/i) && !/^ *$/.test(_statement)) {
+                    // Data decleration
+                    if (_statement.match(/A\s*WILD.*?APPEARED/i)) {
+                        PokeCodeInterpreter.interpretDataDeclerationStatement(_statement);
+
+                    // write to console statement
+                    } else if (_statement.match(/ANNOYING\s*DIALOGUE/i)) {
+                        PokeCodeInterpreter.interpreteConsoleWriteStatement(_statement);
+
+                    // change variable value
+                    } else if (_statement.match(/CHANGE\s*NICK\s*OF/i)) {
+                        PokeCodeInterpreter.interpreteChangeValueStatement(_statement);
+
+                    // end of if statement
+                    } else if (_statement.match(/ENDIF/i)) {
+                        PokeCodeInterpreter.interpreteEndifStatement();
+
+                    // if statement
+                    } else if (_statement.match(/IF\s*/i)) {
+                        PokeCodeInterpreter.interpreteIfStatement(_statement);
+
+                    // clear console
+                    } else if (_statement.match(/RAPE\s*[AB]/i)) {
+                        PokeCodeInterpreter.clearConsole();
+
+                    // sum function
+                    } else if (_statement.match(/SUM\s*/i)) {
+                        PokeCodeInterpreter.interpreteSumFunction(_statement);
+
+                    // convert functions
+                    } else if (_statement.match(/CONVERT\s*/i)) {
+                        PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
+
+                    // wait function
+                    } else if (_statement.match(/WAIT\s*/i)) {
+                        PokeCodeInterpreter.interpreteWaitFunction(_statement);
+
+                    // get random number
+                    } else if (_statement.match(/RANDOM\s*/i)) {
+                        PokeCodeInterpreter.interpreteRandomFunction(_statement);
+
+                    // goto statement
+                    } else if (_statement.match(/FLY\s*TO/i)) {
+                        PokeCodeInterpreter.interpreteFlyStatement(_statement);
+
+                    // set title 
+                    } else if (_statement.match(/MY\s*NAME\s*IS/i)) {
+                        PokeCodeInterpreter.interpreteSetTitleStatement(_statement);
+                    
+                    } else if (_statement.match(/CITY/i)) {
+                        // do nothing
+
+                    // default
+                    } else {
+                        PokeCodeInterpreter.writeErrorToConsole(`Unkown statement '${_statement}'`);
+                    }
+                }
             }
         }
+    },
+
+
+    /**
+     * Start of interpretation of if statements
+     */
+    interpreteThen: () => {
+        PokeCodeInterpreter.lastIfKeyword = _THEN;
+    },
+
+    interpreteElse: () => {
+        PokeCodeInterpreter.lastIfKeyword = _ELSE;
+    },
+
+    openIfStatement: () => {
+        PokeCodeInterpreter.ifOpen = true;
+    },
+
+    closeIfStatement: () => {
+        PokeCodeInterpreter.ifOpen = false;
+        PokeCodeInterpreter.lastIfKeyword = "";
+    },
+
+    interpreteIfStatement: (_statement) => {
+        PokeCodeInterpreter.openIfStatement();
+        PokeCodeInterpreter.lastIfResult = PokeCodeQuery.interpreteStatement(_statement);
+    },
+
+    interpreteEndifStatement: () => {
+        PokeCodeInterpreter.closeIfStatement();
+    },
+    /**
+     * End of interpretation of if statements
+     */
+
+
+    interpreteSetTitleStatement: (_statement) => {
+        let title = PokeCodeInterpreter.interpreteData(_statement.split(/MY\s*NAME\s*IS/i)[1].trim());
+        document.title = title;
     },
 
     interpreteFlyStatement: (_statement) => {
@@ -306,7 +395,7 @@ const PokeCodeInterpreter = {
     writeErrorToConsole: (_string) => {
         // writing an error message to console and start an 
         // core error to stop execution
-        let string = `<SPAN style="color:red">${_string} (Line: ${PokeCodeInterpreter.activeLine})</SPAN>`;
+        let string = `<SPAN style="color:red">${_string} (Line: ${(PokeCodeInterpreter.activeLine + 1)})</SPAN>`;
         PokeCodeInterpreter.writeStringToConsole(string);
         throw new Error("An error occured, see PokeCode console");
     },
@@ -319,6 +408,66 @@ const PokeCodeInterpreter = {
     scrollConsoleToBottom: _ => {
         // scroll to the bottom of the console
         this.PokeConsole.scrollTop = 9999;
+    }
+
+}
+
+const PokeCodeQuery = {
+    
+    interpreteStatement: (_statement) => {
+        let condition = _statement.split(/IF\s*/i)[1].trim();
+        let truth = false;
+
+        var paras;
+        var a;
+        var b;
+
+        if (condition.match(/NOT\s*EQUAL/i)) {
+            paras = condition.split(/NOT\s*EQUAL/i);
+            a = PokeCodeInterpreter.interpreteData(paras[0].trim());
+            b = PokeCodeInterpreter.interpreteData(paras[1].trim());
+            truth = PokeCodeQuery.checkNonEqual(a,b);
+
+        } else if (condition.match(/EQUAL/i)) {
+            paras = condition.split(/EQUAL/i);
+            a = PokeCodeInterpreter.interpreteData(paras[0].trim());
+            b = PokeCodeInterpreter.interpreteData(paras[1].trim());
+            truth = PokeCodeQuery.checkEqual(a,b);
+ 
+        } else if (condition.match(/GREATER\s*THAN/i)) {
+            paras = condition.split(/GREATER\s*THAN/i);
+            a = PokeCodeInterpreter.interpreteData(paras[0].trim());
+            b = PokeCodeInterpreter.interpreteData(paras[1].trim());
+            truth = PokeCodeQuery.checkGreater(a,b);
+
+        } else if (condition.match(/LESS\s*THAN/i)) {
+            paras = condition.split(/LESS\s*THAN/i);
+            a = PokeCodeInterpreter.interpreteData(paras[0].trim());
+            b = PokeCodeInterpreter.interpreteData(paras[1].trim());
+            truth = PokeCodeQuery.checkLess(a,b);
+
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`Unkown if statement '${condition}'`);
+        }
+
+        return truth;
+
+    },
+
+    checkEqual: (_a, _b) => {
+        return _a == _b;
+    },
+
+    checkNonEqual: (_a, _b) => {
+        return _a != _b;
+    },
+
+    checkGreater: (_a, _b) => {
+        return _a > _b;
+    },
+
+    checkLess: (_a, _b) => {
+        return _a < _b;
     }
 
 }
