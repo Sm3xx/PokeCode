@@ -4,6 +4,8 @@ const PokeCodeInterpreter = {
 
     Variables: {},
 
+    GotoPoints: {},
+
     activeLine: 0,
 
     init: () => {
@@ -13,22 +15,36 @@ const PokeCodeInterpreter = {
     reset: () => {
         PokeCodeInterpreter.activeLine = 0;
         PokeCodeInterpreter.Variables = {};
+        PokeCodeInterpreter.GotoPoints = {};
     },
 
     runCode: (_code) => {   
         if (Array.isArray(_code)) {
             try {
                 PokeCodeInterpreter.reset();
-                _code.forEach(st => {
-                    PokeCodeInterpreter.activeLine++;
+                PokeCodeInterpreter.determineGotoPoints(_code);
+                while (PokeCodeInterpreter.activeLine < _code.length) {
+                    st = _code[PokeCodeInterpreter.activeLine];
                     PokeCodeInterpreter.interpretStatement(st);
-                });
+                    PokeCodeInterpreter.activeLine++;
+                }
             } catch (er) {
                 console.error(er);
             }
         } else {
             PokeCodeInterpreter.writeErrorToConsole(`Illegal code format!`);
         }
+    },
+
+    determineGotoPoints: (_code) => {
+        var actRow = 0;
+        _code.forEach(el => {
+            actRow++;
+            if (el.match(/CITY/i)) {
+                let name = el.split(/CITY/i)[1].trim().replace(/\s/g, "");
+                PokeCodeInterpreter.GotoPoints[name] = actRow;
+            }
+        });
     },
 
     prepareStatement: (_statement) => {
@@ -64,7 +80,20 @@ const PokeCodeInterpreter = {
             // get random number
             } else if (_statement.match(/RANDOM\s*/i)) {
                 PokeCodeInterpreter.interpreteRandomFunction(_statement);
+            // goto statement
+            } else if (_statement.match(/FLY\s*TO/i)) {
+                PokeCodeInterpreter.interpreteFlyStatement(_statement);
             }
+        }
+    },
+
+    interpreteFlyStatement: (_statement) => {
+        let name = _statement.split(/FLY\s*TO/i)[1].trim().replace(/\s/g, "");
+        let index = PokeCodeInterpreter.GotoPoints[name];
+        if (index !== undefined && typeof index == 'number') {
+            PokeCodeInterpreter.activeLine = index;
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`Couldn't find fly point ${name} in sourcecode`);
         }
     },
 
