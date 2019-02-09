@@ -29,6 +29,10 @@ const PokeCodeInterpreter = {
         PokeCodeInterpreter.activeLine = 0;
         PokeCodeInterpreter.Variables = {};
         PokeCodeInterpreter.GotoPoints = {};
+        PokeCodeInterpreter.Classes = {};
+        PokeCodeInterpreter.ifOpen = false;
+        PokeCodeInterpreter.lastIfResult = false;
+        PokeCodeInterpreter.lastIfKeyword = '';
     },
 
     runCode: (_code) => {   
@@ -350,7 +354,7 @@ const PokeCodeInterpreter = {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
-    interpreteWaitFunction: (_statement) => {
+    interpreteWaitFunction: async (_statement) => {
         let waitTime = PokeCodeInterpreter.interpreteData(_statement.split(/WAIT\s*/i)[1].trim());
         if (typeof waitTime == 'number') {
             PokeCodeInterpreter.sleep(waitTime);
@@ -638,18 +642,5 @@ const PokeCodeMethod = {
             }
         });
         return rMethods;
-    }
-}
-
-// following classes has to be programmed
-const PokeCodePopup = {
-    create: (message) => {
-    
-    }
-}
-
-const PokeCodePopupWithInput = {
-    create: (message, callback) => {
-
     }
 }
