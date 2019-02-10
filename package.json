@@ -4,13 +4,23 @@
   "description": "Electron based PokeCode interpreter",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "build"
   },
   "repository": "https://github.com/Sm3xx/PokeCode",
-  "devDependencies": {
-    "electron": "^4.0.3"
+  "keywords": [],
+  "author": "Jonas",
+  "license": "CC0-1.0",
+  "build": {
+    "appId": "com.Sm3xx.PokeCode",
+    "win": {
+      "target": "nsis",
+      "icon": "build/buildRessources/icon.ico"
+    }
   },
-  "dependencies": {
+  "devDependencies": {
+    "electron": "^4.0.3",
+    "electron-builder": "^20.38.5",
     "electron-packager": "^13.0.1"
   }
 }
