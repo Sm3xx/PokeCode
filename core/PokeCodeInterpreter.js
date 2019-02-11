@@ -197,6 +197,9 @@ const PokeCodeInterpreter = {
                             } else if (_statement.match(/SUM\s*/i)) {
                                 PokeCodeInterpreter.interpreteSumFunction(_statement);
 
+                            } else if (_statement.match(/ARITHMETIC/i)) {
+                                PokeCodeInterpreter.interpreteAritmethicFunctions(_statement);
+
                             // convert functions
                             } else if (_statement.match(/CONVERT\s*/i)) {
                                 PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
@@ -285,6 +288,30 @@ const PokeCodeInterpreter = {
      * End of interpretation of if statements
      */
 
+
+    interpreteAritmethicFunctions: (_statement) => {
+
+        if (_statement.match(/SUBTRACT.*FROM/i)) {
+            PokeCodeArithmetic.interpreteSubtract(_statement);
+
+        } else if (_statement.match(/DIVIDE.*BY/i)) {
+            PokeCodeArithmetic.interpreteDivide(_statement);
+
+        } else if (_statement.match(/MULTIPLY.*BY/i)) {
+            PokeCodeArithmetic.interpreteMultiply(_statement);
+
+        } else if (_statement.match(/MODULO.*BY/i)) {
+            PokeCodeArithmetic.interpreteModulo(_statement);
+
+        } else if (_statement.match(/EXPONENT.*BY/i)) {
+            PokeCodeArithmetic.interpreteExponent(_statement);
+
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`'${_statement}' is an unknown arithmetic function`);
+
+        }
+
+    },
 
     interpreteSetTitleStatement: (_statement) => {
         let title = PokeCodeInterpreter.interpreteData(_statement.split(/MY\s*NAME\s*IS/i)[1].trim());
@@ -599,6 +626,105 @@ const PokeCodeQuery = {
 
     checkLess: (_a, _b) => {
         return _a < _b;
+    }
+
+}
+
+const PokeCodeArithmetic = {
+    
+    // interprete a substract statement
+    interpreteSubtract: (_statement) => {
+
+        let firstName = _statement.split(/SUBTRACT/i)[1].split(/FROM/i)[0].trim();
+        let secondName = _statement.split(/FROM/i)[1].split(/INTO/i)[0].trim();
+        let targetVariable = _statement.split(/INTO/i)[1].trim();
+
+        let firstNumber = PokeCodeInterpreter.interpreteData(firstName);
+        let secondNumber = PokeCodeInterpreter.interpreteData(secondName);
+        
+        if (typeof firstNumber == "number" && typeof secondNumber == "number") {
+            let result = firstNumber - secondNumber;
+            PokeCodeInterpreter.setVariableValue(targetVariable, result);
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`All parameters has to be a number in arithmetic functions!`);
+        }
+
+    },
+
+    // interprete a divide statement
+    interpreteDivide: (_statement) => {
+
+        let firstName = _statement.split(/DIVIDE/i)[1].split(/BY/i)[0].trim();
+        let secondName = _statement.split(/BY/i)[1].split(/INTO/i)[0].trim();
+        let targetVariable = _statement.split(/INTO/i)[1].trim();
+
+        let firstNumber = PokeCodeInterpreter.interpreteData(firstName);
+        let secondNumber = PokeCodeInterpreter.interpreteData(secondName);
+        
+        if (typeof firstNumber == "number" && typeof secondNumber == "number") {
+            let result = firstNumber / secondNumber;
+            PokeCodeInterpreter.setVariableValue(targetVariable, result);
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`All parameters has to be a number in arithmetic functions!`);
+        }
+
+    },
+
+    // interprete a multiply statement
+    interpreteMultiply: (_statement) => {
+
+        let firstName = _statement.split(/MULTIPLY/i)[1].split(/BY/i)[0].trim();
+        let secondName = _statement.split(/BY/i)[1].split(/INTO/i)[0].trim();
+        let targetVariable = _statement.split(/INTO/i)[1].trim();
+
+        let firstNumber = PokeCodeInterpreter.interpreteData(firstName);
+        let secondNumber = PokeCodeInterpreter.interpreteData(secondName);
+        
+        if (typeof firstNumber == "number" && typeof secondNumber == "number") {
+            let result = firstNumber * secondNumber;
+            PokeCodeInterpreter.setVariableValue(targetVariable, result);
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`All parameters has to be a number in arithmetic functions!`);
+        }
+
+    },
+
+    // interprete a modulo statement
+    interpreteModulo: (_statement) => {
+
+        let firstName = _statement.split(/MODULO/i)[1].split(/BY/i)[0].trim();
+        let secondName = _statement.split(/BY/i)[1].split(/INTO/i)[0].trim();
+        let targetVariable = _statement.split(/INTO/i)[1].trim();
+
+        let firstNumber = PokeCodeInterpreter.interpreteData(firstName);
+        let secondNumber = PokeCodeInterpreter.interpreteData(secondName);
+        
+        if (typeof firstNumber == "number" && typeof secondNumber == "number") {
+            let result = firstNumber % secondNumber;
+            PokeCodeInterpreter.setVariableValue(targetVariable, result);
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`All parameters has to be a number in arithmetic functions!`);
+        }
+
+    },
+
+    // interprete an exponent statement
+    interpreteExponent: (_statement) => {
+
+        let firstName = _statement.split(/EXPONENT/i)[1].split(/BY/i)[0].trim();
+        let secondName = _statement.split(/BY/i)[1].split(/INTO/i)[0].trim();
+        let targetVariable = _statement.split(/INTO/i)[1].trim();
+
+        let firstNumber = PokeCodeInterpreter.interpreteData(firstName);
+        let secondNumber = PokeCodeInterpreter.interpreteData(secondName);
+
+        if (typeof firstNumber == "number" && typeof secondNumber == "number") {
+            let result = firstNumber ** secondNumber;
+            PokeCodeInterpreter.setVariableValue(targetVariable, result);
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`All parameters has to be a number in arithmetic functions!`);
+        }
+
     }
 
 }

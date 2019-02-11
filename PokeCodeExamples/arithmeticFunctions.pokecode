@@ -1,0 +1,39 @@
+RAPE B
+
+A WILD number1 APPEARED ITS NAME IS 5
+A WILD number2 APPEARED ITS NAME IS 2
+
+A WILD result APPEARED ITS NAME IS 0
+
+// add
+ANNOYING DIALOGUE 'Add:'
+SUM number1, number2 INTO result
+ANNOYING DIALOGUE result
+
+// subtract
+ANNOYING DIALOGUE 'Subtract:'
+ARITHMETIC SUBTRACT number1 FROM number2 INTO result
+ANNOYING DIALOGUE result
+
+// divide
+ANNOYING DIALOGUE 'Divide:'
+ARITHMETIC DIVIDE number1 BY number2 INTO result
+ANNOYING DIALOGUE result
+
+// multiply 
+ANNOYING DIALOGUE 'Multiply:'
+ARITHMETIC MULTIPLY number1 BY number2 INTO result
+
+ANNOYING DIALOGUE result
+
+// modulo
+ANNOYING DIALOGUE 'Modulo:'
+ARITHMETIC MODULO number1 BY number2 INTO result
+
+ANNOYING DIALOGUE result
+
+// exponent
+ANNOYING DIALOGUE 'Exponent:'
+ARITHMETIC EXPONENT number1 BY number2 INTO result
+
+ANNOYING DIALOGUE result
