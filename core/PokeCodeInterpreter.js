@@ -196,9 +196,13 @@ const PokeCodeInterpreter = {
                             // sum function
                             } else if (_statement.match(/SUM\s*/i)) {
                                 PokeCodeInterpreter.interpreteSumFunction(_statement);
-
+                            
+                            // arithmetic functions
                             } else if (_statement.match(/ARITHMETIC/i)) {
                                 PokeCodeInterpreter.interpreteAritmethicFunctions(_statement);
+
+                            } else if (_statement.match(/NOW\s*TELL\s*ME/i)) {
+                                PokeCodeUserInput.requestValueFromUser(_statement);
 
                             // convert functions
                             } else if (_statement.match(/CONVERT\s*/i)) {
@@ -770,3 +774,15 @@ const PokeCodeMethod = {
         return rMethods;
     }
 }
+
+const PokeCodeUserInput = {
+
+    requestValueFromUser: (_statement) => {
+        var msg = PokeCodeInterpreter.interpreteData(_statement.split(/NOW\s*TELL\s*ME/i)[1].split(/INTO/i)[0].trim());
+        var varName = _statement.split(/INTO/i)[1].trim();
+        var requestedValue = prompt(msg);
+        PokeCodeInterpreter.setVariableValue(varName, requestedValue);
+        // TODO: Implement a suitable handling for electron (prompt is not available in electron)
+    }
+
+};
