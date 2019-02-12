@@ -9,7 +9,6 @@
             PokeCodeInterpreter.init()
         </script>
     </head>
-
     <body>
         <button onclick="runCode()" title="Ctrl + Return">run</button>
         <button onclick="clearConsole()">clear console</button>
@@ -41,7 +40,6 @@ POKEMON calculator [
        <div id="console" disabled>
        </div>
     </body>
-
     <script>
         PokeCodeInterpreter.addConsole('console');
         window.onkeydown = ev => {
@@ -49,55 +47,8 @@ POKEMON calculator [
                 runCode();
             }
         }
-
-        runCode = _ => {
-            let codeArray = document.getElementById('source-code').value.split("\n");
-            PokeCodeInterpreter.runCode(codeArray);
-        }
-        clearConsole = _ => {
-            PokeCodeInterpreter.clearConsole();
-        }
+        runCode = _ => {PokeCodeInterpreter.runCode(document.getElementById('source-code').value.split("\n"));}
+        clearConsole = _ => {PokeCodeInterpreter.clearConsole();}
     </script>
-
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-        }
-        textarea, div {
-            width: 49%;
-            height: 500px;
-        }
-        textarea::selection {
-            background: lightblue;
-            color: black;
-        }
-        #console {
-            padding:5px;
-            background-color: black;
-            color: white;
-            font-family: 'Consolas';
-            position: absolute;
-            right: 0px;
-            top: 21px;
-            overflow: scroll;
-            height: 90%;
-        }
-        ::selection {
-            background: white;
-            color: black;
-        }
-
-
-        input {
-            background-color: rgba(0,0,0,0);
-            border-color: rgba(0,0,0,0);
-            color: white;
-            width: 100%;
-            font-family: 'Consolas';
-            height: 100%;
-        }
-
-    </style>
-
+    <style>#console,input{color:#fff;font-family:Consolas}body,html{margin:0;padding:0}div,textarea{width:49%;height:500px}textarea::selection{background:#add8e6;color:#000}#console{padding:5px;background-color:#000;position:absolute;right:0;top:21px;overflow:scroll;height:90%}::selection{background:#fff;color:#000}input{background-color:rgba(0,0,0,0);border-color:transparent;width:100%;height:100%}</style>
 </html>
