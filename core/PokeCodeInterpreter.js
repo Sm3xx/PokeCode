@@ -938,6 +938,11 @@ const PokeCodeUiLoader = {
             input.style.width = width;
         }
 
+        for (var i = 0; i < _xmlEl.attributes.length; i++) {
+            var attrib = _xmlEl.attributes[i];
+            input.setAttribute(attrib.name, attrib.value);
+        }
+
         input.classList.add('Input');
         PokeCodeUiLoader.body.appendChild(input);
     },
@@ -948,6 +953,11 @@ const PokeCodeUiLoader = {
         var width = _xmlEl.getAttribute('width');
         if (width != undefined) {
             button.style.width = width;
+        }
+
+        for (var i = 0; i < _xmlEl.attributes.length; i++) {
+            var attrib = _xmlEl.attributes[i];
+            button.setAttribute(attrib.name, attrib.value);
         }
 
         button.innerHTML = _xmlEl.getAttribute('text');
