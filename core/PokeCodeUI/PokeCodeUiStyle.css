@@ -95,3 +95,7 @@ html {
     background-color: gray;
     color: white;
 }
+
+.Input:disabled {
+    background-color: lightgray;
+}
