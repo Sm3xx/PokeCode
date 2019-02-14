@@ -227,6 +227,10 @@ const PokeCodeInterpreter = {
                             } else if (_statement.match(/MY\s*NAME\s*IS/i)) {
                                 PokeCodeInterpreter.interpreteSetTitleStatement(_statement);
                             
+                            // interpreting ui statements
+                            } else if (_statement.match(/UI/i)) {
+                                PokeCodeUiInterpreter.interpreteUiStatement(_statement);
+
                             } else if (_statement.match(/CITY/i)) {
                                 // do nothing
 
@@ -786,3 +790,175 @@ const PokeCodeUserInput = {
     }
 
 };
+
+
+/**
+ * only works with electron
+ * not available in browser version of PokeCodeInterpreter
+ */
+const fs = require('fs');
+const app = require('electron').remote;
+
+const PokeCodeUiInterpreter = {
+     
+    minimizeConsole: () => {
+        document.getElementById('console').style.width = '0px';
+        document.getElementById('console').style.height = '0px';
+    },
+
+    interpreteUiStatement: (_statement) => {
+        if (_statement.match(/UI\s*LOAD/i)) {
+            PokeCodeUiInterpreter.interpreteLoadUiStatement(_statement);
+        
+        // get/set statement
+        } else if (_statement.match(/(GET|SET)/i)) {
+            PokeCodeUiInterpreter.processGetSetStatement(_statement);
+        
+        }  
+    },
+
+    processGetSetStatement: (_statement) => {
+        var controlId = PokeCodeInterpreter.interpreteData(_statement.split(/(UI\s*(INPUT|LABEL|BUTTON))/i)[1].split(/(GET|SET)/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/(GET|SET)/i)[1].split(/(INTO|FROM)/i)[0].trim());
+        var scoped = PokeCodeInterpreter.interpreteData(_statement.split(/(INTO|FROM)/i)[1].trim());
+        // TODO: Implement these function
+        if (_statement.match(/GET.*INTO/i)) {
+
+        } else if (_statement.match(/SET.*FROM/i)) {
+
+        }
+
+    },
+
+    interpreteLoadUiStatement: (_statement) => {
+        var path = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*LOAD/i)[1].trim());
+
+        PokeCodeUiInterpreter.loadUiXmlView(path);
+    },
+
+    loadUiXmlView: (_xmlFile) => {
+        PokeCodeUiInterpreter.minimizeConsole();
+        var xmlFile = _xmlFile;
+        fs.readFile((PokeCodeUiInterpreter.getCurrentLoadedPath() + xmlFile), "utf-8", (err, data) => {
+            
+            if (err) {
+                throw err;
+            }
+            
+            data = data.replace(/(\n)/g, "");
+            PokeCodeUiLoader.loadUi(data);
+
+            console.log(data);
+        });
+    },
+
+    getCurrentLoadedPath: () => {
+        var split = window.LoadedPokeCodePath.split(/\\/g);
+        var rString = '';
+        for (let i=0; i<(split.length - 1); i++) {
+            rString += split[i] + "\\";
+        }
+        return rString;
+    }
+
+}
+
+
+const _LABEL = 'Label';
+const _INPUT = 'Input';
+const _BUTTON = 'Button';
+const _NEWLINE = 'NewLine';
+
+const PokeCodeUiLoader = {
+    
+    body: null,
+
+    addBody: () => {
+        PokeCodeUiLoader.body = document.getElementsByTagName("body")[0];
+    },
+
+    loadUi: (_xmlCode) => {
+        PokeCodeUiLoader.addBody();
+       
+        var nodes = PokeCodeUiLoader.parseXML(_xmlCode);
+        nodes.forEach(el => {
+            let tag = el.tagName;
+
+            switch (tag) {
+                case _LABEL:
+                    // create label
+                    PokeCodeUiLoader.createLabel(el);
+                    break;
+            
+                case _INPUT:
+                    // create input
+                    PokeCodeUiLoader.createInput(el);
+                    break;
+
+                case _BUTTON:
+                    // create button
+                    PokeCodeUiLoader.createButton(el);
+                    break;
+
+                case _NEWLINE:
+                    // create new line
+                    PokeCodeUiLoader.createNewLine();
+                    break;
+
+                default:
+                    break;
+            }
+
+
+        });
+    },
+    
+    parseXML: (_xmlCode) => {
+        var parser, xmlDoc;
+
+        parser = new DOMParser();
+
+        xmlDoc = parser.parseFromString(_xmlCode,"text/xml");
+        
+        return xmlDoc.getElementsByTagName('PokeCodeUI')[0].childNodes;
+    },
+
+    createLabel: (_xmlEl) => {
+        var label = document.createElement('label');
+        label.innerHTML = _xmlEl.getAttribute('text');
+        label.classList.add('Label');
+        PokeCodeUiLoader.body.appendChild(label);
+    },
+
+    createInput: (_xmlEl) => {
+        var input = document.createElement('input');
+
+        var width = _xmlEl.getAttribute('width');
+        if (width != undefined) {
+            input.style.width = width;
+        }
+
+        input.classList.add('Input');
+        PokeCodeUiLoader.body.appendChild(input);
+    },
+
+    createButton: (_xmlEl) => {
+        var button = document.createElement('button');
+
+        var width = _xmlEl.getAttribute('width');
+        if (width != undefined) {
+            button.style.width = width;
+        }
+
+        button.innerHTML = _xmlEl.getAttribute('text');
+        button.classList.add('Button');
+        button.classList.add(_xmlEl.getAttribute('type'));
+        PokeCodeUiLoader.body.appendChild(button);
+    },
+
+    createNewLine: () => {
+        var br = document.createElement('br');
+        PokeCodeUiLoader.body.appendChild(br);
+    }
+
+}

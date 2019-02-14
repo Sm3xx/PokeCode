@@ -3,7 +3,6 @@ html {
     width: 100%;
     background-color: rgb(240, 240, 240);
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 14pt;
     user-select: none;
 }
 
@@ -15,7 +14,6 @@ html {
     font-size: 14pt;
     padding-left: 20px;
     padding-right: 20px;
-    transition: 0.3s;
     border-radius: 5px;
     outline: none;
     color:rgb(50, 50, 50);
@@ -55,6 +53,19 @@ html {
     background-color: rgb(160, 5, 5);
 }
 
+.Primary {
+    background-color: rgb(43, 120, 198);
+    color:white;
+}
+
+.Primary:hover, .Primary:focus {
+    background-color: rgb(24, 101, 179)
+}
+
+.Primary:active {
+    background-color: rgb(5, 82, 160)
+}
+
 .Label {
     font-size: 14pt;
     margin-left: 10px;
@@ -70,7 +81,7 @@ html {
     border-color: lightgray;
     padding: 8px;
     font-size: 14pt;
-    transition: 0.3s;
+     
     border-radius: 5px;
     outline: none;
     color:rgb(50, 50, 50);

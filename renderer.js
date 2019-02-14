@@ -34,7 +34,9 @@ function loadDataPath (dataPath) {
                 PokeCodeInterpreter.writeErrorToConsole(`File ${dataPath} could not be loaded`);
                 return;
             } 
-    
+            
+            window.LoadedPokeCodePath = dataPath;
+
             data = data.split(/\n/);
     
             PokeCodeInterpreter.runCode(data);
