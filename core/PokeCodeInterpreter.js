@@ -868,6 +868,7 @@ const _LABEL = 'Label';
 const _INPUT = 'Input';
 const _BUTTON = 'Button';
 const _NEWLINE = 'NewLine';
+const _WINDOWSETTINGS = 'WindowSettings';
 
 const PokeCodeUiLoader = {
     
@@ -905,6 +906,10 @@ const PokeCodeUiLoader = {
                     PokeCodeUiLoader.createNewLine();
                     break;
 
+                case _WINDOWSETTINGS:
+                    // settings window settings
+                    PokeCodeUiLoader.setWindowSettings(el);
+
                 default:
                     break;
             }
@@ -921,6 +926,25 @@ const PokeCodeUiLoader = {
         xmlDoc = parser.parseFromString(_xmlCode,"text/xml");
         
         return xmlDoc.getElementsByTagName('PokeCodeUI')[0].childNodes;
+    },
+
+    setWindowSettings: (_xmlEl) => {
+        debugger;
+        var width = parseInt(_xmlEl.getAttribute('width'), 10);
+        var height = parseInt(_xmlEl.getAttribute('height'), 10);
+        var resizeable = _xmlEl.getAttribute('resizeable') == "true" ? true : false;
+
+        var currentWindow = app.getCurrentWindow();
+
+        currentWindow.setSize(width, height);
+        currentWindow.setMinimumSize(width, height);
+
+        currentWindow.setResizable(resizeable)
+        if (!resizeable) {
+            currentWindow.setMaximumSize(width, height);
+            currentWindow.setMaximizable(false);
+        }
+
     },
 
     createLabel: (_xmlEl) => {
