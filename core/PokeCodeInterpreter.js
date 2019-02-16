@@ -33,6 +33,8 @@ const PokeCodeInterpreter = {
         PokeCodeInterpreter.ifOpen = false;
         PokeCodeInterpreter.lastIfResult = false;
         PokeCodeInterpreter.lastIfKeyword = '';
+        PokeCodeInterpreter.createVariable("effective", true);
+        PokeCodeInterpreter.createVariable("noneffective", false);
     },
 
     runCode: (_code) => {   
@@ -127,6 +129,7 @@ const PokeCodeInterpreter = {
                 for (let i=0; i < oMethod.parameters.length; i++) {
                     PokeCodeInterpreter.createVariable(oMethod.parameters[i], aParameters[i]);
                 }
+                PokeCodeInterpreter.classOpen = false;
                 aCode.forEach(el => {
                     if (el.match(/RETURN/i)) {
                         var val = el.split(/RETURN/i)[1].trim();
@@ -152,6 +155,9 @@ const PokeCodeInterpreter = {
     },
 
     interpretStatement: (_statement) => {
+        PokeCodeInterpreter.setVariableValue('effective', true);
+        PokeCodeInterpreter.setVariableValue('noneffective', false);
+        
         if (!PokeCodeInterpreter.classOpen) {
             if (_statement.match(/POKEMON.*\[/i) || _statement.match(/\]/)) {
                 PokeCodeInterpreter.classOpen = !PokeCodeInterpreter.classOpen;
@@ -493,9 +499,15 @@ const PokeCodeInterpreter = {
         if (_dataString.match(/^[0-9]/i)) {
             // data is numeric
             returningValue = parseInt(_dataString, 10);
+              
+        } else if (_dataString.match(/(\s*|)\/.*\//g)) {
+            // data is regex
+            returningValue = new RegExp(_dataString.replace(/\//g, ""));
+
         } else if (_dataString.match(/["'].*["']/i)) {
             // data is string
             returningValue = _dataString.replace(/["']/ig, "");
+
         } else {
             // data is a var
             returningValue = PokeCodeInterpreter.getVariableValue(_dataString);
@@ -818,17 +830,119 @@ const PokeCodeUiInterpreter = {
     },
 
     processGetSetStatement: (_statement) => {
-        var controlId = PokeCodeInterpreter.interpreteData(_statement.split(/(UI\s*(INPUT|LABEL|BUTTON))/i)[1].split(/(GET|SET)/i)[0].trim());
-        var property = PokeCodeInterpreter.interpreteData(_statement.split(/(GET|SET)/i)[1].split(/(INTO|FROM)/i)[0].trim());
-        var scoped = PokeCodeInterpreter.interpreteData(_statement.split(/(INTO|FROM)/i)[1].trim());
-        // TODO: Implement these function
-        if (_statement.match(/GET.*INTO/i)) {
+        
+        if (_statement.match(/INPUT/i)) {
 
-        } else if (_statement.match(/SET.*FROM/i)) {
+            PokeCodeUiInterpreter.interpreteInputGetSet(_statement);
+
+        } else if (_statement.match(/LABEL/i)) {
+
+            PokeCodeUiInterpreter.interpreteLabelGetSet(_statement);
+
+        } else if (_statement.match(/BUTTON/i)) {
+
+            PokeCodeUiInterpreter.interpreteButtonGetSet(_statement);
 
         }
 
     },
+
+    interpreteInputGetSet: (_statement) => {
+        
+        if (_statement.match(/GET/i)) {
+            PokeCodeUiInterpreter.interpreteInputGet(_statement);
+        } else if (_statement.match(/SET/i)) {
+            PokeCodeUiInterpreter.interpreteInputSet(_statement);
+        }
+
+    },
+
+    interpreteInputGet: (_statement) => {
+        var id = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*INPUT/i)[1].split(/GET/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/GET/i)[1].split(/INTO/i)[0].trim());
+        var variable = _statement.split(/INTO/i)[1].trim();
+
+        var value = document.getElementById(id).getAttribute(property);
+
+        PokeCodeInterpreter.setVariableValue(variable, value);
+
+    },
+
+    interpreteInputSet: (_statement) => {
+        var id = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*INPUT/i)[1].split(/SET/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/SET/i)[1].split(/FROM/i)[0].trim());
+        var variable = PokeCodeInterpreter.interpreteData(_statement.split(/FROM/i)[1].trim());
+
+        document.getElementById(id).setAttribute(property, variable);
+
+    },
+
+
+
+    interpreteLabelGetSet: (_statement) => {
+
+        if (_statement.match(/GET/i)) {
+            PokeCodeUiInterpreter.interpreteLabelGet(_statement);
+        } else if (_statement.match(/SET/i)) {
+            PokeCodeUiInterpreter.interpreteLabelSet(_statement);
+        }
+
+    },
+
+    interpreteLabelGet: (_statement) => {
+        var id = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*LABEL/i)[1].split(/GET/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/GET/i)[1].split(/INTO/i)[0].trim());
+        var variable = _statement.split(/INTO/i)[1].trim();
+
+        var value = document.getElementById(id).getAttribute(property);
+
+        PokeCodeInterpreter.setVariableValue(variable, value);
+    },
+
+    interpreteLabelSet: (_statement) => {
+        var id = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*LABEL/i)[1].split(/SET/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/SET/i)[1].split(/FROM/i)[0].trim());
+        var variable = PokeCodeInterpreter.interpreteData(_statement.split(/FROM/i)[1].trim());
+
+        document.getElementById(id).setAttribute(property, variable);
+
+    },
+
+
+
+    interpreteButtonGetSet: (_statement) => {
+
+        if (_statement.match(/GET/i)) {
+            PokeCodeUiInterpreter.interpreteButtonGet(_statement);
+        } else if (_statement.match(/SET/i)) {
+            PokeCodeUiInterpreter.intepreteButtonSet(_statement);
+        }
+
+    },
+
+    interpreteButtonGet: (_statement) => {
+
+        var id = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*BUTTON/i)[1].split(/GET/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/GET/i)[1].split(/INTO/i)[0].trim());
+        var variable = _statement.split(/INTO/i)[1].trim();
+
+        var value = document.getElementById(id).getAttribute(property);
+
+        PokeCodeInterpreter.setVariableValue(variable, value);
+
+    },
+
+    intepreteButtonSet: (_statement) => {
+
+        var id = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*BUTTON/i)[1].split(/SET/i)[0].trim());
+        var property = PokeCodeInterpreter.interpreteData(_statement.split(/SET/i)[1].split(/FROM/i)[0].trim());
+        var variable = PokeCodeInterpreter.interpreteData(_statement.split(/FROM/i)[1].trim());
+
+        document.getElementById(id).setAttribute(property, variable);
+
+    },
+
+
 
     interpreteLoadUiStatement: (_statement) => {
         var path = PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*LOAD/i)[1].trim());
@@ -929,7 +1043,6 @@ const PokeCodeUiLoader = {
     },
 
     setWindowSettings: (_xmlEl) => {
-        debugger;
         var width = parseInt(_xmlEl.getAttribute('width'), 10);
         var height = parseInt(_xmlEl.getAttribute('height'), 10);
         var resizeable = _xmlEl.getAttribute('resizeable') == "true" ? true : false;
@@ -987,6 +1100,16 @@ const PokeCodeUiLoader = {
         button.innerHTML = _xmlEl.getAttribute('text');
         button.classList.add('Button');
         button.classList.add(_xmlEl.getAttribute('type'));
+
+        var clickEvent = _xmlEl.getAttribute('click');
+        var clickEvAr = clickEvent.split(/\#/);
+        var Class = clickEvAr[0];
+        var Method = clickEvAr[1];
+
+        button.addEventListener('click', ev => {
+            PokeCodeInterpreter.callMethod(Class, Method, []);
+        });
+
         PokeCodeUiLoader.body.appendChild(button);
     },
 
