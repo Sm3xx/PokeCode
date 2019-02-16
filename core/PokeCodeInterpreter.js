@@ -216,6 +216,9 @@ const PokeCodeInterpreter = {
 
                             } else if (_statement.match(/POKEMON.*USE/i)) {
                                 PokeCodeInterpreter.interpreteCallMethodStatement(_statement);
+                            
+                            } else if (_statement.match(/MATCH.*REGEX/i)) {
+                                PokeCodeInterpreter.interpreteMatchRegexStatement(_statement);
 
                             // wait function
                             } else if (_statement.match(/WAIT\s*/i)) {
@@ -236,6 +239,10 @@ const PokeCodeInterpreter = {
                             // interpreting ui statements
                             } else if (_statement.match(/UI/i)) {
                                 PokeCodeUiInterpreter.interpreteUiStatement(_statement);
+
+                            // copy to clipboard
+                            } else if (_statement.match(/COPY/i)) {
+                                PokeCodeInterpreter.interpreteCopyToClipboard(_statement);
 
                             } else if (_statement.match(/CITY/i)) {
                                 // do nothing
@@ -427,6 +434,19 @@ const PokeCodeInterpreter = {
         }
     },
 
+    interpreteMatchRegexStatement: (_statement) => {
+        var string = PokeCodeInterpreter.interpreteData(_statement.split(/MATCH/i)[1].split(/REGEX/i)[0].trim());
+        var regex = PokeCodeInterpreter.interpreteData(_statement.split(/REGEX/i)[1].split(/INTO/i)[0].trim());
+        var variable = _statement.split(/INTO/i)[1].trim();
+
+        if (string.match(regex)) {
+            PokeCodeInterpreter.setVariableValue(variable, PokeCodeInterpreter.getVariableValue('effective'));
+        } else {
+            PokeCodeInterpreter.setVariableValue(variable, PokeCodeInterpreter.getVariableValue('noneffective'));
+        }
+
+    },
+
     interpreteConvertToBinary: (_statement) => {
         let val = _statement.split(/CONVERT/i)[1].split(/TO\s*BINARY/i)[0].trim();
         let binaryVal = PokeCodeInterpreter.internalConvertToBinary(PokeCodeInterpreter.getVariableValue(val));
@@ -554,6 +574,21 @@ const PokeCodeInterpreter = {
         } else {
             PokeCodeInterpreter.writeErrorToConsole(`Variable ${_name} hasn't been created yet!`);
         }
+    },
+
+    interpreteCopyToClipboard: (_statement) => {
+        var value = PokeCodeInterpreter.interpreteData(_statement.split(/COPY/i)[1].split(/TO\s*CLIPBOARD/i)[0].trim());
+
+        var el = document.createElement('textarea');
+        el.value = name + ': ' + value;
+        el.setAttribute('readonly', '');
+        el.style.position = 'absolute';
+        el.style.left = '-9999px';
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+
     },
 
     writeStringToConsole: (_string) => {
@@ -863,6 +898,22 @@ const PokeCodeUiInterpreter = {
         document.getElementById('console').style.height = '0px';
     },
 
+    deleteBodyElements: () => {
+        var bodyEls = document.getElementsByTagName("body")[0].childNodes;
+        bodyEls.forEach(el => {
+            if (el.getAttribute('id') != 'console') {
+                el.remove();
+            }
+        });
+    },
+
+    showConsole: () => {
+        PokeCodeUiInterpreter.deleteBodyElements();  
+
+        document.getElementById('console').style.width = "100%";
+        document.getElementById('console').style.height = "100%";
+    },
+
     interpreteUiStatement: (_statement) => {
         if (_statement.match(/UI\s*LOAD/i)) {
             PokeCodeUiInterpreter.interpreteLoadUiStatement(_statement);
@@ -871,7 +922,9 @@ const PokeCodeUiInterpreter = {
         } else if (_statement.match(/(GET|SET)/i)) {
             PokeCodeUiInterpreter.processGetSetStatement(_statement);
         
-        }  
+        } else if (_statement.match(/UI\s*SHOW\s*CONSOLE/i)) {
+            PokeCodeUiInterpreter.showConsole();
+        }
     },
 
     processGetSetStatement: (_statement) => {
@@ -1007,7 +1060,6 @@ const PokeCodeUiInterpreter = {
             data = data.replace(/(\n)/g, "");
             PokeCodeUiLoader.loadUi(data);
 
-            console.log(data);
         });
     },
 
