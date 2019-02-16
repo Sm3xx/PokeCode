@@ -627,6 +627,18 @@ const PokeCodeInterpreter = {
 
 const PokeCodeQuery = {
     
+    ifResults: [],
+
+    ifScopes: [],
+
+    getLastResult: () => {
+        return PokeCodeQuery.ifResults[PokeCodeQuery.ifResults.length];
+    },
+    
+    getLastScope: () => {
+        return PokeCodeQuery.ifScopes[PokeCodeQuery.ifScopes.length];
+    },
+
     interpreteStatement: (_statement) => {
         let condition = _statement.split(/IF\s*/i)[1].trim();
         let truth = false;
