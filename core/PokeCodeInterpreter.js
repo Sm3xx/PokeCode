@@ -599,31 +599,68 @@ const PokeCodeQuery = {
         var paras;
         var a;
         var b;
-
-        if (condition.match(/NOT\s*EQUAL/i)) {
+        if (condition.match(/(NOT\s*EQUAL)|(\!\=)|(\<\>)/i)) {
             paras = condition.split(/NOT\s*EQUAL/i);
+            if (paras == condition) {
+                paras = condition.split(/\!\=/);
+            } 
+            if (paras == condition) {
+                paras = condition.split(/\<\>/);
+            }
+            if (paras == condition) {
+                PokeCodeInterpreter.writeErrorToConsole("Unkown operator");
+            }
             a = PokeCodeInterpreter.interpreteData(paras[0].trim());
             b = PokeCodeInterpreter.interpreteData(paras[1].trim());
             truth = PokeCodeQuery.checkNonEqual(a,b);
 
-        } else if (condition.match(/EQUAL/i)) {
+        } else if (condition.match(/(EQUAL)|(\=\=)/i)) {
             paras = condition.split(/EQUAL/i);
+            if (paras == condition) {
+                paras = condition.split(/\=\=/);
+            } 
+            if (paras == condition) {
+                PokeCodeInterpreter.writeErrorToConsole("Unkown operator");
+            }
             a = PokeCodeInterpreter.interpreteData(paras[0].trim());
             b = PokeCodeInterpreter.interpreteData(paras[1].trim());
             truth = PokeCodeQuery.checkEqual(a,b);
  
-        } else if (condition.match(/GREATER\s*THAN/i)) {
+        } else if (condition.match(/\<\=/)) {
+            paras = condition.split(/\<\=/);
+
+            a = PokeCodeInterpreter.interpreteData(paras[0].trim());
+            b = PokeCodeInterpreter.interpreteData(paras[1].trim());
+
+            truth = PokeCodeQuery.checkEqualLess(a,b);
+
+        } else if (condition.match(/\>\=/)) {
+            paras = condition.split(/\>\=/);
+
+            a = PokeCodeInterpreter.interpreteData(paras[0].trim());
+            b = PokeCodeInterpreter.interpreteData(paras[1].trim());
+
+            truth = PokeCodeQuery.checkEqualGreater(a,b);
+        
+
+        } else if (condition.match(/(GREATER\s*THAN)|(\>)/i)) {
             paras = condition.split(/GREATER\s*THAN/i);
+            if (condition == paras) {
+                paras = condition.split(/(\>)/);
+            }
             a = PokeCodeInterpreter.interpreteData(paras[0].trim());
             b = PokeCodeInterpreter.interpreteData(paras[1].trim());
             truth = PokeCodeQuery.checkGreater(a,b);
 
-        } else if (condition.match(/LESS\s*THAN/i)) {
+        } else if (condition.match(/(LESS\s*THAN)|(\<)/i)) {
             paras = condition.split(/LESS\s*THAN/i);
+            if (condition == paras) {
+                paras = condition.split(/(\<)/);
+            }
             a = PokeCodeInterpreter.interpreteData(paras[0].trim());
             b = PokeCodeInterpreter.interpreteData(paras[1].trim());
             truth = PokeCodeQuery.checkLess(a,b);
-
+        
         } else {
             PokeCodeInterpreter.writeErrorToConsole(`Unkown if statement '${condition}'`);
         }
@@ -646,6 +683,14 @@ const PokeCodeQuery = {
 
     checkLess: (_a, _b) => {
         return _a < _b;
+    },
+    
+    checkEqualLess: (_a, _b) => {
+        return _a <= _b;
+    },
+
+    checkEqualGreater: (_a, _b) => {
+        return _a >= _b;
     }
 
 }
