@@ -988,7 +988,11 @@ const PokeCodeUiInterpreter = {
     },
 
     interpreteUiStatement: (_statement) => {
-        if (_statement.match(/UI\s*LOAD/i)) {
+
+        if (_statement.match(/UI\s*LOAD\s*ICON/i)) {
+            PokeCodeUiInterpreter.interpreteLoadIconStatement(_statement);
+
+        } else if (_statement.match(/UI\s*LOAD/i)) {
             PokeCodeUiInterpreter.interpreteLoadUiStatement(_statement);
         
         // get/set statement
@@ -998,6 +1002,14 @@ const PokeCodeUiInterpreter = {
         } else if (_statement.match(/UI\s*SHOW\s*CONSOLE/i)) {
             PokeCodeUiInterpreter.showConsole();
         }
+    },
+
+    interpreteLoadIconStatement: (_statement) => {
+        var srcPath = PokeCodeUiInterpreter.getCurrentLoadedPath() + PokeCodeInterpreter.interpreteData(_statement.split(/UI\s*LOAD\s*ICON/i)[1].trim());
+
+        var win = app.getCurrentWindow();
+        win.setIcon(srcPath);
+
     },
 
     processGetSetStatement: (_statement) => {
