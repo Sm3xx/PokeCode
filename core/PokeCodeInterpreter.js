@@ -170,9 +170,12 @@ const PokeCodeInterpreter = {
                 } else if (_statement.match(/ELSE/i)) {
                     PokeCodeInterpreter.interpreteElse();
                 } else {
-                    if ((!PokeCodeInterpreter.ifOpen) 
-                        || (PokeCodeInterpreter.ifOpen && PokeCodeInterpreter.lastIfResult && PokeCodeInterpreter.lastIfKeyword == _THEN) 
-                        || (PokeCodeInterpreter.ifOpen && !PokeCodeInterpreter.lastIfResult && PokeCodeInterpreter.lastIfKeyword == _ELSE)) {
+                    // if ((!PokeCodeInterpreter.ifOpen) 
+                    //     || (PokeCodeInterpreter.ifOpen && PokeCodeInterpreter.lastIfResult && PokeCodeInterpreter.lastIfKeyword == _THEN) 
+                    //     || (PokeCodeInterpreter.ifOpen && !PokeCodeInterpreter.lastIfResult && PokeCodeInterpreter.lastIfKeyword == _ELSE)) {
+                    if ((!PokeCodeQuery.ifOpen)
+                        || (PokeCodeQuery.ifOpen && PokeCodeQuery.getLastResult() && PokeCodeQuery.getLastScope() == _THEN)
+                        || (PokeCodeQuery.ifOpen && !PokeCodeQuery.getLastResult() && PokeCodeQuery.getLastScope() == _ELSE)) {
 
                         if (!_statement.match(/^\/\/.*/i) && !/^ *$/.test(_statement)) {
                             // Data decleration
@@ -213,6 +216,14 @@ const PokeCodeInterpreter = {
                             // convert functions
                             } else if (_statement.match(/CONVERT\s*/i)) {
                                 PokeCodeInterpreter.interpreteConvertFunctionType(_statement);
+                            
+                            // split statement
+                            } else if (_statement.match(/SPLIT/i)) {
+                                PokeCodeInterpreter.interpreteSplitFunction(_statement);
+
+                            // read array statement
+                            } else if (_statement.match(/READ/i)) {
+                                PokeCodeInterpreter.interpreteReadArrayFunction(_statement);
 
                             } else if (_statement.match(/POKEMON.*USE/i)) {
                                 PokeCodeInterpreter.interpreteCallMethodStatement(_statement);
@@ -477,6 +488,40 @@ const PokeCodeInterpreter = {
         return output;
     },
 
+    interpreteSplitFunction: (_statement) => {
+        var value = PokeCodeInterpreter.interpreteData(_statement.split(/SPLIT/i)[1].split(/AT/i)[0].trim());
+        var at = PokeCodeInterpreter.interpreteData(_statement.split(/AT/i)[1].split(/INTO/i)[0].trim());
+        var variable = _statement.split(/INTO/i)[1].trim();
+
+        var splittedValue = value.split(at);
+
+        PokeCodeInterpreter.setVariableValue(variable, splittedValue);
+
+    },
+
+    interpreteReadArrayFunction: (_statement) => {
+
+        var variableValue = PokeCodeInterpreter.getVariableValue(_statement.split(/READ/i)[1].split(/INDEX/i)[0].trim());
+        var index = PokeCodeInterpreter.interpreteData(_statement.split(/INDEX/i)[1].split(/INTO/i)[0].trim());
+        var targetVariable = _statement.split(/INTO/i)[1].trim();
+
+        if (Array.isArray(variableValue)) {
+            if (typeof index == 'number') {
+                var string = variableValue[index];
+                if (string != undefined) {
+                    PokeCodeInterpreter.setVariableValue(targetVariable, string);
+                } else {
+                    PokeCodeInterpreter.writeErrorToConsole(`Unkown index ${index} in array`);
+                }
+            } else {
+                PokeCodeInterpreter.writeErrorToConsole(`Index has to be a number`);
+            }
+        } else {
+            PokeCodeInterpreter.writeErrorToConsole(`Variable has to be an array`);
+        }
+
+    },
+
     interpretDataDeclerationStatement: (_statement) => {
         // get name value from data decleration statement
         let name = _statement.split(/A\s*WILD/i)[1];
@@ -516,7 +561,12 @@ const PokeCodeInterpreter = {
     interpreteData: (_dataString) => {
         var returningValue = '';
 
-        if (_dataString.match(/^[0-9]/i)) {
+        if (_dataString.match(/\[.*\]/i)) {
+            // data is array
+            // TODO: Implement data interpration of array
+            returningValue = [];
+
+        } else if (_dataString.match(/^[0-9]/i)) {
             // data is numeric
             returningValue = parseInt(_dataString, 10);
               
@@ -631,12 +681,23 @@ const PokeCodeQuery = {
 
     ifScopes: [],
 
+    ifOpen: false,
+
+    openIfStatement: () => {
+
+    },
+
     getLastResult: () => {
         return PokeCodeQuery.ifResults[PokeCodeQuery.ifResults.length];
     },
     
     getLastScope: () => {
         return PokeCodeQuery.ifScopes[PokeCodeQuery.ifScopes.length];
+    },
+
+    deleteLastIfResult: () => {
+        PokeCodeQuery.ifResults.pop();
+        PokeCodeQuery.ifScopes.pop();
     },
 
     interpreteStatement: (_statement) => {
